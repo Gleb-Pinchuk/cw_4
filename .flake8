@@ -1,0 +1,21 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    env,
+    .venv,
+    */migrations/*,
+    */static/*,
+    db.sqlite3
+
+max-line-length = 120
+
+ignore =
+    Q000,
+    I001,
+    I003,
+    I004,
+    I005,
+    W503,
+    E203
