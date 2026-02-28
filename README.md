@@ -27,13 +27,13 @@ CORS: настройка для подключения фронтенда
 ## Установка
 
 1. Клонируйте репозиторий
-git clone https://github.com/ТВОЙ_НИК/habit-tracker.git
+git clone (https://github.com/Gleb-Pinchuk/cw_4.git)
 
-2. Создайте и активируйте виртуальное окружение
+3. Создайте и активируйте виртуальное окружение
 python -m venv venv
 venv\Scripts\activate
 
-3. Установите зависимости
+4. Установите зависимости
 pip install -r requirements.txt
 
 ## Тестирование
