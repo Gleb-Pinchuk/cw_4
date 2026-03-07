@@ -7,8 +7,14 @@ from django.conf import settings
 from django.utils import timezone
 
 from habits.models import Habit, UserProfile
+from users.models import User as CustomUser
 
 logger = logging.getLogger(__name__)
+
+
+def get_user_display_name(user):
+    """Безопасное получение имени пользователя (email, если username=None)"""
+    return user.username or user.email or f'User-{user.id}'
 
 
 @shared_task
@@ -55,14 +61,18 @@ def send_reminder_notifications():
             success = send_telegram_message(telegram_id, message)
             if success:
                 sent_count += 1
+                # Исправлено: используем безопасное получение имени
+                display_name = get_user_display_name(habit.user)
                 logger.info(
-                    f"Отправлено напоминание пользователю {habit.user.username} (привычка: {habit.action})"
+                    f"Отправлено напоминание пользователю {display_name} (привычка: {habit.action})"
                 )
             else:
                 skipped_count += 1
         else:
             skipped_count += 1
-            logger.debug(f"У пользователя {habit.user.username} не указан Telegram ID")
+            # Исправлено: используем безопасное получение имени
+            display_name = get_user_display_name(habit.user)
+            logger.debug(f"У пользователя {display_name} не указан Telegram ID")
 
     result = f"Проверено привычек: {habits.count()}, отправлено: {sent_count}, пропущено: {skipped_count}"
     logger.info(result)
@@ -86,6 +96,7 @@ def send_telegram_message(chat_id: str, text: str) -> bool:
         logger.error("Telegram bot token not configured!")
         return False
 
+    # Исправлено: убран лишний пробел в URL
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
 
     try:
@@ -121,12 +132,11 @@ def send_weekly_report():
     Еженедельная задача: отправляет отчёт о выполненных привычках за неделю
     (Дополнительная задача для демонстрации работы Celery)
     """
-    from django.contrib.auth.models import User
-
     now = timezone.now()
     week_ago = now - timedelta(days=7)
 
-    users = User.objects.filter(is_active=True)
+    # Исправлено: используем кастомную модель User из users
+    users = CustomUser.objects.filter(is_active=True)
 
     for user in users:
         try:
@@ -139,20 +149,24 @@ def send_weekly_report():
                     user=user, created_at__gte=week_ago
                 ).count()
 
+                # Исправлено: используем безопасное получение имени
+                display_name = get_user_display_name(user)
                 message = (
                     f"📊 <b>Недельный отчёт</b>\n\n"
-                    f"👤 Пользователь: {user.username}\n"
+                    f"👤 Пользователь: {display_name}\n"
                     f"📅 Период: последние 7 дней\n"
                     f"✅ Создано привычек: {completed_habits}\n\n"
                     f"Продолжай в том же духе! 💪"
                 )
 
                 send_telegram_message(telegram_id, message)
-                logger.info(f"Отправлен недельный отчёт пользователю {user.username}")
+                logger.info(f"Отправлен недельный отчёт пользователю {display_name}")
 
         except Exception as e:
+            # Исправлено: используем безопасное получение имени
+            display_name = get_user_display_name(user)
             logger.error(
-                f"Ошибка при отправке отчёта пользователю {user.username}: {e}"
+                f"Ошибка при отправке отчёта пользователю {display_name}: {e}"
             )
 
     return "Недельные отчёты отправлены"
