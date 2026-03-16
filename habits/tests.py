@@ -258,7 +258,7 @@ class AuthAPITest(APITestCase):
 
     def test_login_user(self):
         """Авторизация существующего пользователя"""
-        url = reverse('login')
+        url = reverse('token_obtain_pair')
         data = {
             'email': 'auth@example.com',
             'password': 'authpass123'
@@ -269,14 +269,14 @@ class AuthAPITest(APITestCase):
 
     def test_login_wrong_password(self):
         """Неверный пароль при входе"""
-        url = reverse('login')
+        url = reverse('token_obtain_pair')
         data = {
             'email': 'auth@example.com',
             'password': 'wrongpass'
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('detail', response.data)
 
     def test_token_refresh(self):
         """Обновление токена"""
