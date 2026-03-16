@@ -2,8 +2,8 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:  # Позволяет запускать деплой вручную
+    branches: [ main, master, develop ]
+  workflow_dispatch: 
 
 jobs:
   deploy:
