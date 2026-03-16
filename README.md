@@ -24,27 +24,29 @@ CORS: настройка для подключения фронтенда
 Тестирование: покрытие тестами > 80% с использованием pytest/django test
 Качество кода: проверка через Flake8 (100% без учёта миграций)
 
-## Установка
+### Локальный запуск:
 
-1. Клонируйте репозиторий
-git clone (https://github.com/Gleb-Pinchuk/cw_4.git)
+```bash
+# 1. Клонируй репозиторий
+git clone https://github.com/Gleb-Pinchuk/cw_4.git
+cd cw_4
 
-3. Создайте и активируйте виртуальное окружение
-python -m venv venv
-venv\Scripts\activate
+# 2. Создай .env файл
+cp .env.example .env
+# Отредактируй SECRET_KEY и другие переменные
 
-4. Установите зависимости
-pip install -r requirements.txt
+# 3. Запусти все сервисы
+docker compose up -d
 
-## Тестирование
+# 4. Примени миграции
+docker compose exec web python manage.py migrate
 
-python manage.py test habits
+# 5. Создай суперпользователя
+docker compose exec web python manage.py createsuperuser
 
-## Проверка покрытия кода
-
-pip install coverage
-coverage run --source='.' manage.py test habits
-coverage report
+# 6. Открой в браузере
+http://localhost:8000/admin/
+```
 
 ## Лицензия
 Этот проект создан в учебных целях в рамках курсовой работы. Использование кода разрешено с указанием авторства.
