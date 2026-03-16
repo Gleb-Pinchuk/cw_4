@@ -1,0 +1,29 @@
+﻿# Docker
+*.tar
+*.tar.gz
+*.zip
+!requirements.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.sqlite3
+
+# Secrets (никогда не коммить!)
+*.pem
+*.key
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

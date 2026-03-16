@@ -1,0 +1,65 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name:  Checkout code
+        uses: actions/checkout@v4
+
+      - name:  Кэширование Docker-образов (базовые)
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker-images
+          key: ${{ runner.os }}-docker-base-${{ hashFiles('Dockerfile', 'requirements.txt') }}
+
+      - name:  Деплой на сервер через SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            echo " Начинаю деплой..."
+            
+            # Переходим в папку проекта
+            cd /home/ubuntu/cw_4
+            
+            # Обновляем код из репозитория
+            git pull origin main
+            
+            # Останавливаем старые контейнеры
+            docker compose down
+            
+            # Собираем образы (используем кэш, если есть)
+            docker compose build --no-cache
+            
+            # Запускаем контейнеры
+            docker compose up -d
+            
+            # Применяем миграции
+            docker compose exec -T web python manage.py migrate --noinput
+            
+            # Собираем статику (если нужно)
+            docker compose exec -T web python manage.py collectstatic --noinput
+            
+            # Очищаем старые образы (экономим место)
+            docker image prune -f
+            
+            echo " Деплой завершён!"
+
+      - name:  Уведомление об успехе
+        if: success()
+        run: echo " Деплой успешно завершён!"
+
+      - name:  Уведомление об ошибке
+        if: failure()
+        run: echo " Деплой не удался! Проверь логи."
