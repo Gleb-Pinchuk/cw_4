@@ -28,11 +28,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
-        data = super().validate(attrs)
-        data['email'] = self.user.email
-        data['user_id'] = self.user.id
-        return data
-    def validate(self, attrs):
+        # 1. Валидация входных данных
         email = attrs.get('email')
         password = attrs.get('password')
 
@@ -40,7 +36,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError('Email обязателен')
         if not password:
             raise serializers.ValidationError('Пароль обязателен')
+
+        # 2. Вызов родительского валидатора (проверка пароля и генерация токенов)
         data = super().validate(attrs)
+
+        # 3. Добавление данных в ответ
         data['email'] = self.user.email
         data['user_id'] = self.user.id
 
