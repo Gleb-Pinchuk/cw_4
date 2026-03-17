@@ -24,7 +24,7 @@ CORS: настройка для подключения фронтенда
 Тестирование: покрытие тестами > 80% с использованием pytest/django test
 Качество кода: проверка через Flake8 (100% без учёта миграций)
 
-### Локальный запуск:
+### Локальный запуск
 
 ```bash
 # 1. Клонируй репозиторий
@@ -33,9 +33,9 @@ cd cw_4
 
 # 2. Создай .env файл
 cp .env.example .env
-# Отредактируй SECRET_KEY и другие переменные
+# Отредактируй .env (SECRET_KEY, TELEGRAM_BOT_TOKEN)
 
-# 3. Запусти все сервисы
+# 3. Запусти Docker
 docker compose up -d
 
 # 4. Примени миграции
@@ -44,9 +44,7 @@ docker compose exec web python manage.py migrate
 # 5. Создай суперпользователя
 docker compose exec web python manage.py createsuperuser
 
-# 6. Открой в браузере
-http://localhost:8000/admin/
-```
+Доступ: http://localhost:8081/admin/
 
 ## Лицензия
 Этот проект создан в учебных целях в рамках курсовой работы. Использование кода разрешено с указанием авторства.
