@@ -44,7 +44,55 @@ docker compose exec web python manage.py migrate
 # 5. Создай суперпользователя
 docker compose exec web python manage.py createsuperuser
 
-Доступ: http://localhost:8081/admin/
+#Развёртывание на удалённом сервере
+
+## Обновление пакетов
+sudo apt update && sudo apt upgrade -y
+
+## Установка Docker
+curl -fsSL https://get.docker.com | sh
+
+## Добавление пользователя в группу docker (чтобы не использовать sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+
+## Проверка установки
+docker --version
+docker compose version
+
+##Клонирование проекта
+
+git clone https://github.com/Gleb-Pinchuk/cw_4.git
+cd cw_4
+
+## Создай .env файл из шаблона
+cp .env.example .env
+
+#Сборка и запуск
+
+# Собери Docker-образ (установит все зависимости)
+docker build -t cw_4-web:latest .
+
+# Запусти все сервисы
+docker compose up -d
+
+ #Первоначальная настройка
+
+# Примени миграции 
+docker compose exec web python manage.py migrate
+
+# Собери статику для Nginx
+docker compose exec web python manage.py collectstatic --noinput
+
+# Создай суперпользователя для входа в админку
+docker compose exec web python manage.py createsuperuser
+
+
+
+Доступ: Админка http://<IP_СЕРВЕРА>:8081/admin/
+Документация API http://<IP_СЕРВЕРА>:8081/api/docs/
+
+WEB-сайт http://83.166.236.188:8081/admin/login/?next=/admin/
 
 ## Лицензия
 Этот проект создан в учебных целях в рамках курсовой работы. Использование кода разрешено с указанием авторства.
