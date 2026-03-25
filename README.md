@@ -24,27 +24,75 @@ CORS: настройка для подключения фронтенда
 Тестирование: покрытие тестами > 80% с использованием pytest/django test
 Качество кода: проверка через Flake8 (100% без учёта миграций)
 
-## Установка
+### Локальный запуск
 
-1. Клонируйте репозиторий
-git clone (https://github.com/Gleb-Pinchuk/cw_4.git)
+```bash
+# 1. Клонируй репозиторий
+git clone https://github.com/Gleb-Pinchuk/cw_4.git
+cd cw_4
 
-3. Создайте и активируйте виртуальное окружение
-python -m venv venv
-venv\Scripts\activate
+# 2. Создай .env файл
+cp .env.example .env
+# Отредактируй .env (SECRET_KEY, TELEGRAM_BOT_TOKEN)
 
-4. Установите зависимости
-pip install -r requirements.txt
+# 3. Запусти Docker
+docker compose up -d
 
-## Тестирование
+# 4. Примени миграции
+docker compose exec web python manage.py migrate
 
-python manage.py test habits
+# 5. Создай суперпользователя
+docker compose exec web python manage.py createsuperuser
 
-## Проверка покрытия кода
+#Развёртывание на удалённом сервере
 
-pip install coverage
-coverage run --source='.' manage.py test habits
-coverage report
+## Обновление пакетов
+sudo apt update && sudo apt upgrade -y
+
+## Установка Docker
+curl -fsSL https://get.docker.com | sh
+
+## Добавление пользователя в группу docker (чтобы не использовать sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+
+## Проверка установки
+docker --version
+docker compose version
+
+##Клонирование проекта
+
+git clone https://github.com/Gleb-Pinchuk/cw_4.git
+cd cw_4
+
+## Создай .env файл из шаблона
+cp .env.example .env
+
+#Сборка и запуск
+
+# Собери Docker-образ (установит все зависимости)
+docker build -t cw_4-web:latest .
+
+# Запусти все сервисы
+docker compose up -d
+
+ #Первоначальная настройка
+
+# Примени миграции 
+docker compose exec web python manage.py migrate
+
+# Собери статику для Nginx
+docker compose exec web python manage.py collectstatic --noinput
+
+# Создай суперпользователя для входа в админку
+docker compose exec web python manage.py createsuperuser
+
+
+
+Доступ: Админка http://<IP_СЕРВЕРА>:8081/admin/
+Документация API http://<IP_СЕРВЕРА>:8081/api/docs/
+
+WEB-сайт http://83.166.236.188:8081/admin/login/?next=/admin/
 
 ## Лицензия
 Этот проект создан в учебных целях в рамках курсовой работы. Использование кода разрешено с указанием авторства.
